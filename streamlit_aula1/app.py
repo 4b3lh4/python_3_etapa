@@ -1,43 +1,59 @@
 import streamlit as st
 import pandas as pd
 
-nome = "Seu Nome"
-idade = 20
+st.set_page_config(page_title="Meu primeiro dash", page_icon="🛒", layout="centered")
 
-st.write("Olá, mundo")
-st.write(f"Meu nome é {nome} e tenho {idade} anos")
-
-st.title("Meu primeiro dash")
-st.subheader(nome)
+nome = "Alice"
+idade = 17
 
 df = pd.DataFrame({
     "Matéria": ["Português", "Matemática", "Python", "Frame"],
     "Nota": [5, 9, 7, 10]
 })
 
-st.write(df)
+st.write("Olá, mundo!")
 
-st.divider()
+st.title("Meu primeiro dash")
+st.write("Nome:", nome)
+st.write("Idade:", idade)
+st.dataframe(df)
 
-precos = {
-    "Arroz": 28.90,
-    "Feijão": 8.50,
-    "Macarrão": 5.20,
-    "Leite": 5.80,
-    "Café": 18.90,
-    "Pão": 9.50
+st.header("Supermercado")
+
+produtos = {
+    "Arroz": 25.00,
+    "Feijão": 8.00,
+    "Leite": 5.00,
+    "Pão": 10.00,
+    "Café": 18.50,
+    "Açúcar": 4.50
 }
 
 
-def calcular_compra(item, quantidade):
-    return precos[item] * quantidade
+def calcular_total(selecionados):
+    total = 0
+    for produto in selecionados:
+        total = total + produtos[produto]
+    return total
 
 
-st.subheader("Supermercado")
+col1, col2 = st.columns(2)
 
-item = st.selectbox("Escolha um item", list(precos.keys()))
-quantidade = st.number_input("Quantidade", min_value=1, value=1, step=1)
+with col1:
+    selecionados = st.multiselect("Escolha os produtos:", list(produtos.keys()))
 
-total = calcular_compra(item, quantidade)
+total = calcular_total(selecionados)
 
-st.metric("Total da compra", f"R$ {total:.2f}")
+with col2:
+    valor_pago = st.number_input("Valor pago em dinheiro (R$):", min_value=0.0, step=1.0, format="%.2f")
+
+st.write(f"Total da compra: R$ {total:.2f}")
+
+if st.button("Calcular troco"):
+    if len(selecionados) == 0:
+        st.error("Selecione pelo menos um produto.")
+    elif valor_pago < total:
+        st.error(f"Valor insuficiente! Faltam R$ {total - valor_pago:.2f}")
+    else:
+        troco = valor_pago - total
+        st.success(f"Pagamento aprovado! Troco: R$ {troco:.2f}")
